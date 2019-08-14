@@ -4,54 +4,64 @@
 // @author      non_shi
 // @include     http://www.nicovideo.jp/search/*
 // @include     http://www.nicovideo.jp/tag/*
-// @version     1
+// @version     1.1
 // @grant       none
 // @description	Remodeling search option on Niconico
 // ==/UserScript==
 
 (function(){
-    function create_sort_button(sort,order,label){
-        let link=document.createElement("a");
-        link.textContent=label;
-        link.className="switchingBtn";
-        let search_url=location.origin+location.pathname+"?";
-        let params=new URLSearchParams(location.search);
-        params.set("sort",sort);
-        params.set("order",order);
-        params.delete("page");
-        link.href=search_url+params.toString();
-        let div=document.createElement("div");
-        div.style.cssText="float:right;margin:3px 2px;";
-        div.appendChild(link);
-        return div;
-    }
 
-    let toolbar=document.getElementsByClassName("toolbar")[0];
-    let rich_sort_bar=document.createElement("div");
-    rich_sort_bar.id="rich_sort_bar";
-    rich_sort_bar.style.cssText="width:100%;height:30px;margin-bottom:4px;border:1px solid #aaa;border-radius:4px;background:#fff;color:#333;";
-    toolbar.insertBefore(rich_sort_bar,toolbar.firstChild);
-    let search_option=document.getElementsByClassName("searchOption")[0];
-    search_option.style.marginBottom="4px";
-    toolbar.insertBefore(search_option,rich_sort_bar.nextSibling);
+	const toolbar=document.getElementsByClassName("toolbar")[0];
+	const elm_rich_sort_bar=(()=>{
+		const elm_sort_bar=document.createElement("div");
+		elm_sort_bar.id="rich_sort_bar";
+		elm_sort_bar.style.cssText="width:100%;height:30px;margin-bottom:4px;border:1px solid #aaa;border-radius:4px;background:#fff;color:#333;";
+		elm_sort_bar.appendChild((()=>{
+			const elm_label_sort=document.createElement("div");
+			elm_label_sort.style.cssText="height:22px;line-height:22px;margin:4px;padding:0 4px;display:inline-block;text-align:center;font-size:93%;";
+			elm_label_sort.innerText="並び方 : "+document.getElementsByClassName("searchOptionBtn switchingBtn expand")[0].innerText.substr(1);
+			return elm_label_sort;
+		})());
+		const searchOptionBtn=toolbar.getElementsByClassName("searchOptionBtn");
+		elm_sort_bar.appendChild((()=>{
+			const btn_option_expander= document.querySelector("div[data-search-option-open]");
+			btn_option_expander.firstChild.innerText="検索オプション▼";
+			btn_option_expander.style.cssText+="float:right;margin:3px 2px;margin-right:6px;";
+			return btn_option_expander;
+		})());
+		elm_sort_bar.appendChild((()=>{
+			const btn_option_collapser=document.querySelector("div[data-search-option-close]");
+			btn_option_collapser.firstChild.innerText="検索オプション▲";
+			btn_option_collapser.style.cssText+="float:right;margin:3px 2px;";
+			return btn_option_collapser;
+		})());
+		return elm_sort_bar;
+	})();
 
-    let label_sort=document.createElement("div");
-    label_sort.style.cssText="height:22px;line-height:22px;margin:4px;padding:0 4px;display:inline-block;text-align:center;font-size:93%;";
-    label_sort.innerText="並び方 : "+document.getElementsByClassName("searchOptionBtn switchingBtn expand")[0].innerText.substr(1);
-    rich_sort_bar.appendChild(label_sort);
+	(()=>{//inject_rich_sort_bar
+		toolbar.insertBefore(elm_rich_sort_bar,toolbar.firstChild);
+		const search_option=document.getElementsByClassName("searchOption")[0];
+		search_option.style.marginBottom="4px";
+		toolbar.insertBefore(search_option,elm_rich_sort_bar.nextSibling);
+	})();
 
-    let searchOptionBtn=toolbar.getElementsByClassName("searchOptionBtn");
-    let btn_SO_expand=searchOptionBtn[0];
-    btn_SO_expand.firstChild.innerText="検索オプション▼";
-    btn_SO_expand.style.cssText+="float:right;margin:3px 2px;margin-right:6px;";
-    rich_sort_bar.appendChild(btn_SO_expand);
-    let btn_SO_collapse=searchOptionBtn[1].parentNode;
-    btn_SO_collapse.firstChild.innerText="検索オプション▲";
-    btn_SO_collapse.style.cssText+="float:right;margin:3px 2px;";
-    rich_sort_bar.appendChild(btn_SO_collapse);
-
-    let btn_sort_fd=create_sort_button("f","d","動画新着順");
-    rich_sort_bar.appendChild(btn_sort_fd);
-    let btn_sort_nd=create_sort_button("n","d","コメント新着順");
-    rich_sort_bar.appendChild(btn_sort_nd);
+	(()=>{//add_fast_sort_button
+		const create_sort_button=(sort,order,label)=>{
+			const elm_link=document.createElement("a");
+			elm_link.textContent=label;
+			elm_link.className="switchingBtn";
+			let params=new URLSearchParams(location.search);
+			params.set("sort",sort);
+			params.set("order",order);
+			params.delete("page");
+			elm_link.href=location.origin+location.pathname+"?"+params.toString();
+			const elm_outer=document.createElement("div");
+			elm_outer.style.cssText="float:right;margin:3px 2px;";
+			elm_outer.appendChild(elm_link);
+			return elm_outer;
+		}
+		elm_rich_sort_bar.appendChild(create_sort_button("f","d","動画新着順"));
+		elm_rich_sort_bar.appendChild(create_sort_button("n","d","コメント新着順"));
+	})();
 }());
+
