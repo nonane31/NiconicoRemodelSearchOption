@@ -7,4 +7,4 @@
 
 使い方
 ---
-Tampermonkeyでnrso.user.jsをrawで開くといけるっぽい
+Tampermonkeyで動かしてね
